@@ -1,0 +1,176 @@
+<HTML>
+<HEAD>
+<TITLE>Set::Range - Easy conditional operations on a set of ranges.</TITLE>
+<LINK REV="made" HREF="mailto:">
+</HEAD>
+
+<BODY>
+
+<A NAME="__index__"></A>
+<!-- INDEX BEGIN -->
+
+<UL>
+
+	<LI><A HREF="#name">NAME</A></LI>
+	<LI><A HREF="#synopsis">SYNOPSIS</A></LI>
+	<LI><A HREF="#installation">INSTALLATION</A></LI>
+	<LI><A HREF="#description">DESCRIPTION</A></LI>
+	<UL>
+
+		<LI><A HREF="#methods">METHODS</A></LI>
+	</UL>
+
+	<LI><A HREF="#export">EXPORT</A></LI>
+	<LI><A HREF="#bugs & requests">BUGS &amp; REQUESTS</A></LI>
+	<LI><A HREF="#see also">SEE ALSO</A></LI>
+	<LI><A HREF="#author">AUTHOR</A></LI>
+</UL>
+<!-- INDEX END -->
+
+<HR>
+<P>
+<H1><A NAME="name">NAME</A></H1>
+<P>Set::Range - Easy conditional operations on a set of ranges.</P>
+<P>
+<HR>
+<H1><A NAME="synopsis">SYNOPSIS</A></H1>
+<PRE>
+        use Set::Range;</PRE>
+<PRE>
+        my %set= ('1' =&gt; {      lower =&gt; 0,
+                                upper =&gt; 10,
+                                upper_inclusive =&gt; 1,
+                        },
+                  '2' =&gt; {      lower =&gt; 11,
+                                upper =&gt; 100,
+                                lower_inclusive =&gt; 1,
+                         },
+                );</PRE>
+<PRE>
+        my $range=Set::Range-&gt;new(\%set); print $range-&gt;getSet('19', NUM_RANGE); 
+        # prints &quot;2&quot;</PRE>
+<PRE>
+        my %set= ('Jan' =&gt; {    lower =&gt; '1/1/2001',
+                                upper =&gt; '1/31/2001',
+                                upper_inclusive =&gt; 1,
+                                lower_inclusive =&gt; 1,
+                        }, # Days in January
+                  'Feb' =&gt; {    lower =&gt; '2/1/2001',
+                                upper =&gt; '2/28/2001',
+                                upper_inclusive =&gt; 1,
+                                lower_inclusive =&gt; 1,
+                         }, # Days in February
+                );</PRE>
+<PRE>
+        my $range=Set::Range-&gt;new(\%set);</PRE>
+<PRE>
+        print $range-&gt;getSet('1/11/2001', DATE_RANGE);
+        # prints &quot;Jan&quot;</PRE>
+<P>
+<HR>
+<H1><A NAME="installation">INSTALLATION</A></H1>
+<PRE>
+   perl Makefile.PL
+   make
+   make test
+   make install</PRE>
+<P>Win32 users substitute ``make'' with ``nmake'' or equivalent. 
+nmake is available at <A HREF="http://download.microsoft.com/download/vc15/Patch/1.52/W95/EN-US/Nmake15.exe">http://download.microsoft.com/download/vc15/Patch/1.52/W95/EN-US/Nmake15.exe</A></P>
+<P>
+<HR>
+<H1><A NAME="description">DESCRIPTION</A></H1>
+<P>Set::Range allows you to define ranges of numeric or date values and will
+return the set that a given test value lies in. This module removes the
+need for multiple if .. elsif .. (etc) tests and lets you modify the sets
+on the fly without having to recode the logic in your scripts.</P>
+<P>E.g.: define date ranges and test for which set '1/1/2002' is in.</P>
+<P>
+<H2><A NAME="methods">METHODS</A></H2>
+<DL>
+<DT><STRONG><A NAME="item_new">new</A></STRONG><BR>
+<DD>
+This creates the Set::Range Object
+<P>Example:
+    my $range = Set::Range-&gt;new(\%sets);</P>
+<PRE>
+    Pass C&lt;new()&gt; a reference to a Hash containing the set
+    information.
+</PRE>
+<PRE>
+
+=over 6</PRE>
+<P></P>
+<DT><STRONG><A NAME="item_%sets">%sets</A></STRONG><BR>
+<DD>
+<PRE>
+  The hash defining the sets contains one hash per set
+  with at least 'upper' and 'lower' defined.
+  'upper_inclusive' and 'lower_inclusive' are optional
+  and are the equivalent of &gt;= and &lt;= for the upper and 
+  lower set boundries.</PRE>
+<PRE>
+  The set hash can look like this:
+</PRE>
+<PRE>
+
+  { 
+    'key1' =&gt; { 
+                lower =&gt; 0,
+                upper =&gt; 10
+                },
+    'key2' =&gt; {
+                lower =&gt; 10,
+                upper =&gt; 15,
+                lower_inclusive =&gt; 1,
+              },
+    'key3' =&gt; {
+                lower =&gt; 15
+                upper =&gt; 25,
+                lower_inclusive =&gt; 1,
+                upper_inclusive =&gt; 1,
+              },
+   }</PRE>
+<PRE>
+
+  etc... The lower and upper values can either be
+  numeric values or date values in the form
+  mm/dd/yyyy or dd/mm/yyyy (see C&lt;getSet&gt; for
+  Euro-formatted dates)</PRE>
+<PRE>
+
+=back</PRE>
+<DT><STRONG><A NAME="item_getSet">getSet</A></STRONG><BR>
+<DD>
+<A HREF="#item_getSet"><CODE>getSet()</CODE></A> returns the value of the set that the test item is a member of.
+Optionally accepts one of the following contants (defaults to numeric):
+NUM_RANGE, DATE_RANGE, EU_DATE_RANGE, TIME_RANGE(same as NUM_RANGE)
+<P>Examples:</P>
+<PRE>
+    my $set = $range-&gt;getSet(10);
+    my $set = $range-&gt;getSet('1/14/2002', DATE_RANGE);</PRE>
+<P>getSet returns 0 if the test value was not found to be a member of any 
+set.</P>
+<P>Note: Set::Range uses Date::Calc functions to convert the date to
+a datestamp. I settled on Date::Calc because Time::Local doesn't
+support years &gt; 2038.</P>
+<P></P></DL>
+<P>
+<HR>
+<H1><A NAME="export">EXPORT</A></H1>
+<P>NUM_RANGE, DATE_RANGE, EU_DATE_RANGE, TIME_RANGE constants</P>
+<P>
+<HR>
+<H1><A NAME="bugs & requests">BUGS &amp; REQUESTS</A></H1>
+<P>Please let me know!</P>
+<P>
+<HR>
+<H1><A NAME="see also">SEE ALSO</A></H1>
+<P>Date::Calc</P>
+<P>
+<HR>
+<H1><A NAME="author">AUTHOR</A></H1>
+<P>S. Flack : <A HREF="mailto:perl@simonflack.com">perl@simonflack.com</A></P>
+
+</BODY>
+
+</HTML>
